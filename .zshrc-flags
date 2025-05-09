@@ -1,0 +1,64 @@
+# .zshrc-flags – Apple Silicon Build Environment
+# Source this in ~/.zshrc:  source ~/.zshrc-flags
+
+### Homebrew Setup ###
+HOMEBREW_PREFIX="/opt/homebrew"
+unset SDKROOT
+export MACOSX_DEPLOYMENT_TARGET=11.0
+
+### OpenSSL (Optional) ###
+# To use OpenSSL 3:
+#   brew install openssl@3
+#   export OPENSSL_DIR="${HOMEBREW_PREFIX}/opt/openssl@3"
+export OPENSSL_DIR="${OPENSSL_DIR:-${HOMEBREW_PREFIX}/opt/openssl@1.1}"
+
+### Compiler & Linker Flags ###
+export ARCHFLAGS="-arch arm64"
+
+# Include paths
+export CFLAGS="-arch arm64 \
+  -I${HOMEBREW_PREFIX}/opt/mysql-client@8.0/include \
+  -I${HOMEBREW_PREFIX}/opt/libffi/include \
+  -I${HOMEBREW_PREFIX}/opt/openssl@1.1/include \
+  -I${HOMEBREW_PREFIX}/opt/zlib/include \
+  -I${HOMEBREW_PREFIX}/opt/jpeg/include \
+  -I${HOMEBREW_PREFIX}/include \
+  -I${HOMEBREW_PREFIX}/opt/flex/include \
+  -I${HOMEBREW_PREFIX}/opt/libressl/include"
+
+# Preprocessor flags
+export CPPFLAGS="-arch arm64 \
+  -I${HOMEBREW_PREFIX}/opt/mysql-client@8.0/include \
+  -I${HOMEBREW_PREFIX}/opt/libffi/include \
+  -I${HOMEBREW_PREFIX}/opt/openssl@1.1/include \
+  -I${HOMEBREW_PREFIX}/opt/zlib/include \
+  -I${HOMEBREW_PREFIX}/opt/jpeg/include \
+  -I${HOMEBREW_PREFIX}/include \
+  -I${HOMEBREW_PREFIX}/opt/flex/include \
+  -I${HOMEBREW_PREFIX}/opt/libressl/include"
+
+# Linker flags
+export LDFLAGS="-L${HOMEBREW_PREFIX}/opt/mysql-client@8.0/lib \
+  -L${HOMEBREW_PREFIX}/opt/libffi/lib \
+  -L${HOMEBREW_PREFIX}/opt/openssl@1.1/lib \
+  -L${HOMEBREW_PREFIX}/opt/zlib/lib \
+  -L${HOMEBREW_PREFIX}/opt/jpeg/lib \
+  -L${HOMEBREW_PREFIX}/lib \
+  -L${HOMEBREW_PREFIX}/opt/flex/lib \
+  -L${HOMEBREW_PREFIX}/opt/bison/lib \
+  -L${HOMEBREW_PREFIX}/opt/libressl/lib"
+
+# C++ flags
+export CXXFLAGS="${CPPFLAGS} ${CXXFLAGS}"
+
+### pkg-config ###
+export PKG_CONFIG_PATH="${HOMEBREW_PREFIX}/opt/mysql-client@8.0/lib/pkgconfig:\
+${HOMEBREW_PREFIX}/opt/libffi/lib/pkgconfig:\
+${HOMEBREW_PREFIX}/opt/openssl@1.1/lib/pkgconfig:\
+${HOMEBREW_PREFIX}/opt/zlib/lib/pkgconfig:\
+${HOMEBREW_PREFIX}/opt/jpeg/lib/pkgconfig:\
+${HOMEBREW_PREFIX}/opt/libressl/lib/pkgconfig"
+
+### CMake ###
+export CMAKE_PREFIX_PATH="${HOMEBREW_PREFIX}"
+

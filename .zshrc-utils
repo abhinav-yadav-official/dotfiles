@@ -1,0 +1,170 @@
+rdiff () {
+	hg diff "$@" > /tmp/auction.diff
+	hg import /tmp/auction.diff --no-commit
+	rm /tmp/auction.diff
+}
+
+revert () {
+	export parent=`hg log -r "parents(.)" --template "{rev}"`
+	rdiff -r .:$parent "$@"
+}
+
+summary () {
+	hg log -r "$1" --template '{desc}\n' | cat
+}
+
+annotate () {
+	hg annotate --template "{lines % '┃ {pad(node|shortest, 6, left=true)} ┃ {pad(fill(author|emailuser|lower, "11")|firstline, 11, left=true)} ┃ {pad(date|age|short, 13, left=true)} ┃ {line}'}" "$@" | nvim -
+}
+
+
+_es_query () {
+    if [[ -f "$2" ]]; then
+        cat $2 | curl -XPOST $ES_LOCATION/$1/_search -d@-;
+    else
+        curl -XPOST $ES_LOCATION/$1/_search -d $2;
+    fi
+}
+
+es_can () {
+    _es_query "auction/candidate_type" $1
+}
+
+es_job () {
+    _es_query "jobs/job_type" $1
+}
+
+function clean_hg_spaces {
+    local commit_to_modify=${1:-"."}
+
+    # Update to the specified commit or stay at the current commit
+    hg up $commit_to_modify
+
+    # Get the hash of the commit to modify
+    local commit_hash=$(hg log -r . --template "{node}\n")
+
+    # Create a diff excluding whitespace changes
+    hg diff -c . -b > /tmp/clean_hg_spaces_diff
+
+    # Update to the previous commit
+    hg previous
+
+    # Import the diff without committing
+    hg import /tmp/clean_hg_spaces_diff --no-commit
+
+    # Set the parent to the hash of the commit to modify
+    hg debugsetparents $commit_hash
+
+    # Amend the commit
+    hg ci --amend
+}
+
+
+# Function to determine the last revision that modified a specific line in a file using Mercurial
+blame() {
+    # Check input parameters
+    if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+        echo "Usage: blame <file>:<line> [revision]"
+        return 1
+    fi
+
+    local file_and_line=$1
+    local filename=${file_and_line%%:*}
+    local line_number=${file_and_line##*:}
+
+    # Optional revision identifier
+    local revision=${2:-"."}
+
+    # Validate the line number as numeric
+    if ! [[ $line_number =~ ^[0-9]+$ ]]; then
+        echo "Error: '$line_number' is not a valid line number."
+        return 1
+    fi
+
+    # Update to the specified revision if provided
+    if ! hg up $revision -q; then
+        echo "Error: Failed to update to revision '$revision'."
+        return 1
+    fi
+
+    # Ensure the file exists in the repository
+    if ! hg status "$filename" &> /dev/null; then
+        echo "Error: The file '$filename' does not exist in the Mercurial repository."
+        return 1
+    fi
+
+    # Get the revision number using hg annotate and isolate the specific line with head and tail
+    local commit_hash=$(hg annotate -n "$filename" | head -n $line_number | tail -n 1 | cut -d: -f1)
+
+    # Validate that a revision was found
+    if [ -z "$commit_hash" ]; then
+        echo "No revision found for $filename at line $line_number."
+        return 1
+    fi
+
+    # Retrieve the revision summary
+    local summary=$(hg log -r "$commit_hash" --template "{desc}\n")
+
+    # Output the revision and summary
+    echo "Last modified in revision: $commit_hash"
+    echo "Revision summary: $summary"
+}
+
+# A function to show 'hg diff' output with line numbers
+hg_diff() {
+    # Capture and process the output of 'hg diff'
+    hg diff "$@" | awk '
+    # Print filenames and non-diff lines as is
+    /^diff/ || !/^[+-]/ { print; next; }
+
+    # Handle lines starting with "@@"
+    /^\@\@/ {
+        # Extract line numbers for context lines
+        match($0, /-[0-9]+(,[0-9]+)? \+([0-9]+)(,[0-9]+)?/, arr)
+        minus_line = substr(arr[1], 2);  # Extract starting line number for removals
+        plus_line = arr[2];              # Starting line number for additions
+        minus_count = 0;                 # Reset counters
+        plus_count = 0;
+        sub(/,.*/, "", minus_line);
+        sub(/,.*/, "", plus_line);
+        print;
+        next;
+    }
+
+    # Handle removed lines
+    /^-/ {
+        print minus_line+minus_count ": " $0;
+        minus_count++;
+        next;
+    }
+
+    # Handle added lines
+    /^\+/ {
+        print plus_line+plus_count ": " $0;
+        plus_count++;
+    }
+    '
+}
+
+convert_md_to_rtf() {
+    echo "$1" | pandoc -f markdown -t rtf
+}
+
+markdown_to_text() {
+    if [ "$#" -eq 1 ]; then
+        input_markdown="$1"
+    elif [ ! -t 0 ]; then
+        # Check if input is coming from a pipe
+        input_markdown=$(cat)
+    else
+        echo "No input provided. Use as 'script.sh \"markdown text\"' or echo \"markdown text\" | script.sh"
+        exit 1
+    fi
+
+    # Convert Markdown to RTF
+    rtf_output=$(convert_md_to_rtf "$input_markdown")
+
+    # Copy to clipboard
+    echo "$rtf_output" | pbcopy
+
+}

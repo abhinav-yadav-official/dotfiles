@@ -1,0 +1,4 @@
+source $HOME/bin/dracula-zsh-syntax-highlighting.sh
+export EDITOR="nvim"
+export VISUAL="nvim"
+export PYTHONWARNINGS=ignore

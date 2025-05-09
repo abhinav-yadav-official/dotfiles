@@ -1,0 +1,7 @@
+alias zshup="source ~/.zshrc"
+alias vizsh="vim ~/.zshrc; zshup"
+alias ports="sudo lsof -i -P | grep LISTEN"
+alias clean="hg clean; hg up --clean"
+alias cst="cdiff --stat"
+alias vdl='yt-dlp --cookies ~/Downloads/cookies.txt --downloader aria2c'
+alias code="windsurf"

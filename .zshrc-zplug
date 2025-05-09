@@ -1,0 +1,18 @@
+export ZPLUG_HOME=/opt/homebrew/opt/zplug
+source $ZPLUG_HOME/init.zsh
+
+ZSH_THEME=""
+
+zplug "mafredri/zsh-async", from:github
+zplug "zdharma/fast-syntax-highlighting", as:plugin, defer:2
+zplug "zsh-users/zsh-autosuggestions", as:plugin, defer:2
+zplug romkatv/powerlevel10k, as:theme, depth:1
+
+zplug load
+
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi

@@ -1,0 +1,13 @@
+# Only load Powerlevel10k configuration in iTerm2
+if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
+    # Enable Powerlevel10k instant prompt
+    if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+    fi
+
+    # Source p10k configuration
+    [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+else
+    # Set a basic prompt when not in iTerm2
+    PS1='%n@%m %~ %# '
+fi

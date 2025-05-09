@@ -1,0 +1,18 @@
+syntax: glob
+*~
+*.orig
+.DS_Store
+*.sv*
+*.sw*
+*.pyc
+.hg/
+pdfjs/
+*secret*json
+*.txt
+*.csv
+*.patch
+ignore/*
+.vscode/*
+.python-version
+src
+pip.mac.txt

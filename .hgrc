@@ -1,0 +1,61 @@
+[ui]
+# username = firstname lastname <email@example.com>
+username = Abhinav Yadav <abhinav@instahyre.com>
+ssh = ssh -C
+ignore = ~/.hgignore
+
+# merge = merge_tool_name
+merge=kdiff3
+#merge=meld
+
+[defaults]
+# Needed for Phabricator to get enough context.
+diff = --unified 8
+
+[extensions]
+churn =
+color =
+hgext.extdiff =
+hgext.purge =
+hgext.rebase =
+histedit = 
+mq =
+pager =
+shelve =
+evolve =
+graphlog =
+journal =
+
+[extdiff]
+cmd.kdiff3 =
+cmd.icdiff=icdiff
+opts.icdiff=--recursive -N -H --cols 192
+
+[merge-tools]
+kdiff3.args = $base $local $other -o $output
+meld.args = --auto-merge $local $base $other --output $output
+
+[merge-patterns]
+#** = meld
+** = kdiff3
+
+[phases]
+# Needed for rebase to work properly.
+publish = False
+
+[pager]
+pager = LESS='FSRX' less
+attend = cat, diff, glog, log, incoming, outgoing, lg, show, lga, icdiff, graph
+
+[color]
+mode=terminfo
+log.branch=cyan
+log.summary=bold
+log.bookmark=cyan bold
+log.tag=blue bold
+log.user=magenta
+changeset.public=green
+changeset.draft=red bold
+
+[alias]
+#

@@ -1,0 +1,83 @@
+export INSTAHYRE_PATH="$HOME/instahyre"
+export DEVEL_PATH="$INSTAHYRE_PATH/devel"
+export AUCTION_PATH="$DEVEL_PATH/auction"
+alias dev="cd $AUCTION_PATH; pyenv shell blob"
+alias blob-python="$HOME/.pyenv/versions/blob/bin/python"
+alias manage="dev; python manage.py"
+alias shell="manage shell_plus --quiet-load"
+
+alias migrate="manage migrate"
+alias makemigrations="manage makemigrations"
+alias sqlmigrate="manage sqlmigrate"
+
+alias fab="fab -f ~/instahyre/devel/scripts/deploy/fabfile.py --colorize-errors -n 3"
+
+alias up="hg up"
+alias cdiff="hg diff -c ."
+alias bo="hg bo"
+alias pull="(hg log -r 'bookmark() and (not draft() or master or prod or staging)' --template '{bookmarks} ' | xargs hg bo -d) && hg pull --quiet"
+alias fgraph='hg log -G --template "{label(ifeq(phase, \"draft\", \"changeset.draft\", \"changeset.public\"), \"{node|shortest}\")}{label(\"log.bookmark\", \"{if(bookmarks, \" [{join(bookmarks, \"][\")}]\")}\")} {label(\"log.user\", \"{author|user}\")} {desc|firstline}"'
+alias graph='fgraph -r "ancestors(draft() or descendants(ancestors(.), 1))"'
+
+alias runredis="brew services run redis"
+alias stopredis="brew services stop redis"
+
+alias runmysql="brew services run mysql@8.0"
+alias stopmysql="brew services stop mysql@8.0"
+
+alias runelastic="docker start elasticsearch"
+alias stopelastic="docker stop elasticsearch"
+
+alias runrabbit="docker start rabbitmq"
+alias stoprabbit="docker stop rabbitmq"
+
+alias runservice="runredis && runmysql && runelastic && runrabbit"
+alias stopservice="stopredis && stopmysql && stopelastic && stoprabbit"
+
+export ES_LOCATION="localhost:9200"
+
+alias plint="pylint --rcfile=$DEVEL_PATH/.pylintrc"
+
+alias mdump='mysqldump -u root --all-databases | pv -s$(mysql -u root -Nse "SELECT ROUND(SUM(data_length) * 0.9, 0) FROM information_schema.TABLES")'
+
+apply-dump() {
+    mysql -u root -e 'DROP DATABASE IF EXISTS auction; DROP DATABASE IF EXISTS instamail; CREATE DATABASE auction; CREATE DATABASE instamail;'
+    
+    # Get file extension
+    local file=$1
+    local ext="${file##*.}"
+    
+    if [[ "$ext" == "tar" || "$ext" == "gz" ]]; then
+        # Create a temporary directory
+        local tmp_dir=$(mktemp -d -t dump-XXXXXX)
+        
+        echo "Extracting archive to $tmp_dir..."
+        
+        # Extract archive based on extension
+        if [[ "$ext" == "tar" ]]; then
+            tar -xf "$file" -C "$tmp_dir"
+        elif [[ "$ext" == "gz" && "$file" == *.tar.gz ]]; then
+            tar -xzf "$file" -C "$tmp_dir"
+        fi
+        
+        # Find and apply SQL file(s)
+        local sql_files=($(find "$tmp_dir" -name "*.sql"))
+        
+        if [[ ${#sql_files[@]} -gt 0 ]]; then
+            echo "Found ${#sql_files[@]} SQL file(s). Applying..."
+            for sql_file in "${sql_files[@]}"; do
+                echo "Applying $sql_file"
+                pv "$sql_file" | mysql -u root
+            done
+        else
+            echo "No SQL files found in the archive!"
+        fi
+        
+        # Clean up
+        echo "Cleaning up temporary files..."
+        rm -rf "$tmp_dir"
+    else
+        # Original behavior for SQL files
+        pv "$file" | mysql -u root
+    fi
+}

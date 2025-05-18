@@ -58,4 +58,8 @@ changeset.public=green
 changeset.draft=red bold
 
 [alias]
-#
+graph=log -G --style compact
+prompt = log -r . --template '{node|shortest} {bookmarks}{if(bookmarks, " ", "")}{author|user}\n'
+
+[templates]
+mini = '{label(ifeq(phase, "draft", "changeset.draft", "changeset.public"), "{node|shortest}")}{label("log.bookmark", "{if(bookmarks, " [{join(bookmarks, "][")}]")}")} {label("log.user", "{author|user}")} {desc|firstline}'

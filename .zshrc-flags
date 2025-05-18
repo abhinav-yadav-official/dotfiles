@@ -1,64 +1,70 @@
-# .zshrc-flags – Apple Silicon Build Environment
-# Source this in ~/.zshrc:  source ~/.zshrc-flags
-
-### Homebrew Setup ###
-HOMEBREW_PREFIX="/opt/homebrew"
-unset SDKROOT
-export MACOSX_DEPLOYMENT_TARGET=11.0
-
-### OpenSSL (Optional) ###
-# To use OpenSSL 3:
-#   brew install openssl@3
-#   export OPENSSL_DIR="${HOMEBREW_PREFIX}/opt/openssl@3"
-export OPENSSL_DIR="${OPENSSL_DIR:-${HOMEBREW_PREFIX}/opt/openssl@1.1}"
-
-### Compiler & Linker Flags ###
 export ARCHFLAGS="-arch arm64"
 
 # Include paths
 export CFLAGS="-arch arm64 \
-  -I${HOMEBREW_PREFIX}/opt/mysql-client@8.0/include \
-  -I${HOMEBREW_PREFIX}/opt/libffi/include \
-  -I${HOMEBREW_PREFIX}/opt/openssl@1.1/include \
-  -I${HOMEBREW_PREFIX}/opt/zlib/include \
-  -I${HOMEBREW_PREFIX}/opt/jpeg/include \
-  -I${HOMEBREW_PREFIX}/include \
-  -I${HOMEBREW_PREFIX}/opt/flex/include \
-  -I${HOMEBREW_PREFIX}/opt/libressl/include"
+  -I$HOMEBREW_PREFIX/include \
+  -I$HOMEBREW_OPT/flex/include \
+  -I$HOMEBREW_OPT/freetype/include \
+  -I$HOMEBREW_OPT/jpeg/include \
+  -I$HOMEBREW_OPT/lapack/include \
+  -I$HOMEBREW_OPT/libffi/include \
+  -I$HOMEBREW_OPT/libressl/include \
+  -I$HOMEBREW_OPT/libzip/include \
+  -I$HOMEBREW_OPT/mysql@8.0/include \
+  -I$HOMEBREW_OPT/openblas/include \
+  -I$HOMEBREW_OPT/openjpeg/include \
+  -I$HOMEBREW_OPT/openssl@1.1/include \
+  -I$HOMEBREW_OPT/zlib/include"
 
 # Preprocessor flags
 export CPPFLAGS="-arch arm64 \
-  -I${HOMEBREW_PREFIX}/opt/mysql-client@8.0/include \
-  -I${HOMEBREW_PREFIX}/opt/libffi/include \
-  -I${HOMEBREW_PREFIX}/opt/openssl@1.1/include \
-  -I${HOMEBREW_PREFIX}/opt/zlib/include \
-  -I${HOMEBREW_PREFIX}/opt/jpeg/include \
-  -I${HOMEBREW_PREFIX}/include \
-  -I${HOMEBREW_PREFIX}/opt/flex/include \
-  -I${HOMEBREW_PREFIX}/opt/libressl/include"
+  -I$HOMEBREW_PREFIX/include \
+  -I$HOMEBREW_OPT/flex/include \
+  -I$HOMEBREW_OPT/freetype/include \
+  -I$HOMEBREW_OPT/jpeg/include \
+  -I$HOMEBREW_OPT/lapack/include \
+  -I$HOMEBREW_OPT/libffi/include \
+  -I$HOMEBREW_OPT/libressl/include \
+  -I$HOMEBREW_OPT/libzip/include \
+  -I$HOMEBREW_OPT/mysql@8.0/include \
+  -I$HOMEBREW_OPT/openblas/include \
+  -I$HOMEBREW_OPT/openjpeg/include \
+  -I$HOMEBREW_OPT/openssl@1.1/include \
+  -I$HOMEBREW_OPT/zlib/include"
 
 # Linker flags
-export LDFLAGS="-L${HOMEBREW_PREFIX}/opt/mysql-client@8.0/lib \
-  -L${HOMEBREW_PREFIX}/opt/libffi/lib \
-  -L${HOMEBREW_PREFIX}/opt/openssl@1.1/lib \
-  -L${HOMEBREW_PREFIX}/opt/zlib/lib \
-  -L${HOMEBREW_PREFIX}/opt/jpeg/lib \
-  -L${HOMEBREW_PREFIX}/lib \
-  -L${HOMEBREW_PREFIX}/opt/flex/lib \
-  -L${HOMEBREW_PREFIX}/opt/bison/lib \
-  -L${HOMEBREW_PREFIX}/opt/libressl/lib"
+export LDFLAGS="-L$HOMEBREW_PREFIX/lib \
+  -L$HOMEBREW_OPT/bison/lib \
+  -L$HOMEBREW_OPT/flex/lib \
+  -L$HOMEBREW_OPT/freetype/lib \
+  -L$HOMEBREW_OPT/jpeg/lib \
+  -L$HOMEBREW_OPT/lapack/lib \
+  -L$HOMEBREW_OPT/libffi/lib \
+  -L$HOMEBREW_OPT/libressl/lib \
+  -L$HOMEBREW_OPT/libzip/lib \
+  -L$HOMEBREW_OPT/mysql@8.0/lib \
+  -L$HOMEBREW_OPT/openblas/lib \
+  -L$HOMEBREW_OPT/openjpeg/lib \
+  -L$HOMEBREW_OPT/openssl@1.1/lib \
+  -L$HOMEBREW_OPT/zlib/lib"
 
 # C++ flags
 export CXXFLAGS="${CPPFLAGS} ${CXXFLAGS}"
 
 ### pkg-config ###
-export PKG_CONFIG_PATH="${HOMEBREW_PREFIX}/opt/mysql-client@8.0/lib/pkgconfig:\
-${HOMEBREW_PREFIX}/opt/libffi/lib/pkgconfig:\
-${HOMEBREW_PREFIX}/opt/openssl@1.1/lib/pkgconfig:\
-${HOMEBREW_PREFIX}/opt/zlib/lib/pkgconfig:\
-${HOMEBREW_PREFIX}/opt/jpeg/lib/pkgconfig:\
-${HOMEBREW_PREFIX}/opt/libressl/lib/pkgconfig"
+export PKG_CONFIG_PATH="$HOMEBREW_PREFIX/lib/pkgconfig:\
+$HOMEBREW_OPT/freetype/lib/pkgconfig:\
+$HOMEBREW_OPT/jpeg/lib/pkgconfig:\
+$HOMEBREW_OPT/lapack/lib/pkgconfig:\
+$HOMEBREW_OPT/libffi/lib/pkgconfig:\
+$HOMEBREW_OPT/libressl/lib/pkgconfig:\
+$HOMEBREW_OPT/libzip/lib/pkgconfig:\
+$HOMEBREW_OPT/mysql@8.0/lib/pkgconfig:\
+$HOMEBREW_OPT/openblas/lib/pkgconfig:\
+$HOMEBREW_OPT/openjpeg/lib/pkgconfig:\
+$HOMEBREW_OPT/openssl@1.1/lib/pkgconfig:\
+$HOMEBREW_OPT/zlib/lib/pkgconfig"
 
 ### CMake ###
-export CMAKE_PREFIX_PATH="${HOMEBREW_PREFIX}"
+export CMAKE_PREFIX_PATH="$BREW_PREFIX"
 

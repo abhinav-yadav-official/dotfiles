@@ -1,0 +1,44 @@
+# Dracula prompt color codes (hex reference in comments)
+DRACULA_PURPLE='%F{141}'     # purple (#BD93F9)
+DRACULA_GRAY='%F{61}'        # gray (#6272A4)
+DRACULA_ARROW_MAGENTA='%F{212}❯%f' # magenta/pink (#FF79C6)
+DRACULA_ARROW_RED='%F{203}❯%f'     # red (#FF5555)
+DRACULA_ARROW_GREEN='%F{83}❯%f'    # green (#50FA7B) (if needed)
+DRACULA_CYAN='%F{87}'        # cyan (#8BE9FD) (for venv if desired)
+DRACULA_RESET='%f'
+
+
+parse_hg_bookmark() {
+  local hg_prompt
+  hg_prompt="$(/Users/abhinav/.local/bin/hg prompt 2>/dev/null)"
+  [[ -n "$hg_prompt" ]] && echo " $hg_prompt"
+}
+
+parse_venv() {
+  [[ -n "$PYENV_VERSION" ]] && echo " $PYENV_VERSION"
+}
+
+prompt_path() {
+  # Show ~ for home, ~/subdir for subdirs, else full path
+  echo "${PWD/#$HOME/~}"
+}
+
+set_prompt() {
+  local last_status=$?
+  local path hg venv arrow
+
+  if [[ $last_status -eq 0 ]]; then
+    arrow="$DRACULA_ARROW_MAGENTA"
+  else
+    arrow="$DRACULA_ARROW_RED"
+  fi
+
+  path="$(prompt_path)"
+  hg="$(parse_hg_bookmark)"
+  venv="$(parse_venv)"
+
+  PS1="${DRACULA_PURPLE}${path}${DRACULA_RESET}${DRACULA_GRAY}${hg}${venv}${DRACULA_RESET} ${arrow} "
+}
+
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd set_prompt

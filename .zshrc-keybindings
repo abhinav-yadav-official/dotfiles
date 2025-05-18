@@ -1,0 +1,16 @@
+# Zsh custom keybindings and history search (no legacy/oh-my-zsh/zplug)
+
+# Home/End keys
+bindkey "\e[1~" beginning-of-line
+bindkey "\e[4~" end-of-line
+bindkey "^[[H" beginning-of-line
+bindkey "^[[F" end-of-line
+
+# Incremental history search with up/down arrows (history substring search)
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey '^[[A' up-line-or-beginning-search
+bindkey '^[[B' down-line-or-beginning-search
+

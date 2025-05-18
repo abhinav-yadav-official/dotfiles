@@ -1,9 +1,0 @@
-# iTerm2-specific configuration
-if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
-    source ~/.zshrc-p10k
-    source ~/.zshrc-shell-integration
-    source ~/.zshrc-zplug
-else
-    # Basic prompt for other terminals
-    PS1='%n@%m %~ %# '
-fi

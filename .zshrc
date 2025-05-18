@@ -4,35 +4,34 @@ export HOMEBREW_SHARE="$HOMEBREW_PREFIX/share"
 export EDITOR="vim"
 export VISUAL="vim"
 export PYTHONWARNINGS=ignore
+export TERM="xterm-256color"
 
 source ~/.zshrc-path
 source ~/.zprofile
-source ~/.zshrc-aliases
 
-# Homebrew Zsh enhancements (Dracula theme, completions, autosuggestions, highlighting)
-# Dracula Zsh syntax highlighting theme
+# Initialize Zsh completion system
 export FPATH="$HOMEBREW_SHARE/zsh-completions:$FPATH"
-
-# Initialize completion system
 autoload -Uz compinit
 compinit
-
-# Enable classic completion menu selection with up/down navigation
-zstyle ':completion:*' menu select
-
-# Fancier interactive completion menu (fzf-tab)
+# Ensure right arrow accepts current selection in fzf-tab
+zstyle ':fzf-tab:*' fzf-bindings 'right:accept'
 source ~/.fzf-tab/fzf-tab.plugin.zsh
 
 # Zsh Autosuggestions
 source "$HOMEBREW_SHARE/zsh-autosuggestions/zsh-autosuggestions.zsh"
-source "$HOMEBREW_SHARE/zsh-history-substring-search/zsh-history-substring-search.zsh"
-source "$HOMEBREW_SHARE/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-source dracula-zsh-syntax-highlighting.sh
 
 # Load prompt logic
 source ~/.zshrc-ps1
 
-source ~/.zshrc-flags
+# Keybindings
 source ~/.zshrc-keybindings
+
+# Syntax Highlighting
+source ~/.zshrc-custom-syntax-highlighting
+source "$HOMEBREW_SHARE/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+
+# Misc
+source ~/.zshrc-aliases
+source ~/.zshrc-flags
 source ~/.zshrc-utils
 source ~/.zshrc-instahyre

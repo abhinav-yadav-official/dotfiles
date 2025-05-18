@@ -1,25 +1,24 @@
-# Dracula prompt color codes (hex reference in comments)
-DRACULA_PURPLE='%F{141}'     # purple (#BD93F9)
-DRACULA_GRAY='%F{61}'        # gray (#6272A4)
-DRACULA_ARROW_MAGENTA='%F{212}❯%f' # magenta/pink (#FF79C6)
-DRACULA_ARROW_RED='%F{203}❯%f'     # red (#FF5555)
-DRACULA_ARROW_GREEN='%F{83}❯%f'    # green (#50FA7B) (if needed)
-DRACULA_CYAN='%F{87}'        # cyan (#8BE9FD) (for venv if desired)
-DRACULA_RESET='%f'
 
+PATH_COLOR='%F{blue}'
+REPO_COLOR='%F{#6272a4}'
+PYENV_COLOR='%F{#6272a4}'
+ARROW_COLOR_DEFAULT='%F{green}❯%f'
+ARROW_COLOR_ERROR='%F{red}❯%f'
+RESET_COLOR='%f%k'
+REPO_ICON=""
+PYTHON_ICON=""
 
 parse_hg_bookmark() {
   local hg_prompt
   hg_prompt="$(/Users/abhinav/.local/bin/hg prompt 2>/dev/null)"
-  [[ -n "$hg_prompt" ]] && echo " $hg_prompt"
+  [[ -n "$hg_prompt" ]] && echo " $REPO_ICON $hg_prompt"
 }
 
 parse_venv() {
-  [[ -n "$PYENV_VERSION" ]] && echo " $PYENV_VERSION"
+  [[ -n "$PYENV_VERSION" ]] && echo " $PYTHON_ICON $PYENV_VERSION"
 }
 
 prompt_path() {
-  # Show ~ for home, ~/subdir for subdirs, else full path
   echo "${PWD/#$HOME/~}"
 }
 
@@ -28,16 +27,17 @@ set_prompt() {
   local path hg venv arrow
 
   if [[ $last_status -eq 0 ]]; then
-    arrow="$DRACULA_ARROW_MAGENTA"
+    arrow="$ARROW_COLOR_DEFAULT"
   else
-    arrow="$DRACULA_ARROW_RED"
+    arrow="$ARROW_COLOR_ERROR"
   fi
 
   path="$(prompt_path)"
   hg="$(parse_hg_bookmark)"
   venv="$(parse_venv)"
 
-  PS1="${DRACULA_PURPLE}${path}${DRACULA_RESET}${DRACULA_GRAY}${hg}${venv}${DRACULA_RESET} ${arrow} "
+  PS1="${PATH_COLOR}${path}${RESET_COLOR}${REPO_COLOR}${hg}${PYENV_COLOR}${venv}${RESET_COLOR} ${arrow} "
+
 }
 
 autoload -Uz add-zsh-hook

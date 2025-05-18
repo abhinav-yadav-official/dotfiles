@@ -6,11 +6,34 @@ bindkey "\e[4~" end-of-line
 bindkey "^[[H" beginning-of-line
 bindkey "^[[F" end-of-line
 
-# Incremental history search with up/down arrows (history substring search)
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-bindkey '^[[A' up-line-or-beginning-search
-bindkey '^[[B' down-line-or-beginning-search
+# Use fzf for history search with up/down arrows and Ctrl+R
+if command -v fzf >/dev/null; then
+  # Right arrow: accept selection. Left arrow: abort/close fzf, then move cursor left.
+  export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --bind=right:accept --bind=left:abort"
+  fzf-history-widget() {
+    local query="$LBUFFER"
+    local selected
+    # Use prefix match if something is typed, otherwise show all
+    if [[ -n $query ]]; then
+      selected=$(fc -l 1 | awk '{$1=""; print substr($0,2)}' | grep -E "^$query" | fzf --no-sort --query="$query")
+    else
+      selected=$(fc -l 1 | awk '{$1=""; print substr($0,2)}' | fzf --tac +s)
+    fi
+    if [[ -n $selected ]]; then
+      LBUFFER=$selected
+    elif [[ $KEYS == $'\e[D' ]]; then
+      # If aborted with left arrow, move cursor left
+      zle backward-char
+    fi
+    zle redisplay
+  }
+  zle -N fzf-history-widget
+  bindkey '^R' fzf-history-widget
+  bindkey '^[[A' fzf-history-widget  # Up arrow
+  bindkey '^[[B' fzf-history-widget  # Down arrow
+fi
 
+# Always use fzf-tab on Tab key for completion, if available
+if [[ $widgets[fzf-tab-complete] ]]; then
+  bindkey '^I' fzf-tab-complete
+fi

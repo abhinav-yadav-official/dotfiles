@@ -37,8 +37,8 @@ set_prompt() {
   venv="$(parse_venv)"
 
   PS1="${PATH_COLOR}${path}${RESET_COLOR}${REPO_COLOR}${hg}${PYENV_COLOR}${venv}${RESET_COLOR} ${arrow} "
-
 }
+
 
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd set_prompt

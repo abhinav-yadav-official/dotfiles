@@ -1,0 +1,79 @@
+export FZF_DEFAULT_OPTS="--height 40% --border --info=hidden --separator='' --prompt='' "
+
+get_bash_completions_for_line() {
+    local line=$1
+
+    bash --norc --noprofile -c '
+    # Load bash completion if available
+    if [[ -f /etc/bash_completion ]]; then
+        source /etc/bash_completion
+    fi
+
+    COMP_LINE="'"$line"'"
+    COMP_POINT=${#COMP_LINE}
+    COMP_WORDS=($COMP_LINE)
+    COMP_CWORD=$((${#COMP_WORDS[@]} - 1))
+
+    COMPREPLY=()
+    cmd="${COMP_WORDS[0]}"
+    type _completion_loader &>/dev/null && _completion_loader "$cmd"
+
+    if complete -p "$cmd" &>/dev/null; then
+        eval "$(complete -p "$cmd" | sed -n "s/.*-F \([^ ]*\) .*/__fn=\1/p")"
+        [[ -n $__fn ]] && $__fn "$cmd" "${COMP_WORDS[@]}"
+    else
+        # Fallback: basic file completion for the current word
+        COMPREPLY=($(compgen -f -- "${COMP_WORDS[$COMP_CWORD]}"))
+    fi
+
+    printf "%s\n" "${COMPREPLY[@]}"
+    '
+}
+
+custom-completion-widget() {
+    local query="$LBUFFER"
+    local result selected key
+    local last_token="${LBUFFER##*[[:space:]]}"
+    local prefix="${LBUFFER%$last_token}"
+
+    if [[ -n $query ]]; then
+        result=("${(@f)$(
+            {
+                fc -l 1 |
+                    sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+//' |
+                    awk -v q="$query" '
+                        index($0, q) == 1 && !hseen[$0]++ { print "H\t" $0 }
+                    '
+
+                if [[ -n $last_token ]]; then
+                    get_bash_completions_for_line "$LBUFFER" |
+                        sed "s|^|$prefix|" |
+                        awk -v q="$query" '
+                            !cseen[$0]++ {
+                                score = ($0 == q) ? 0 : (index($0, q) == 1 ? 1 : 2)
+                                print "C" score "\t" $0
+                            }
+                        ' | sort -t$'\t' -k1,1n -k2
+                fi
+            } |
+            awk -F'\t' '!gseen[$2]++' |  # Global deduplication on final values
+            cut -f2- |
+            fzf --exact --tac --no-sort --query="$query" --expect=enter,right
+        )}")
+    fi
+
+    if [[ ${#result} -ge 2 ]]; then
+        key=$result[1]
+        selected=$result[2]
+
+        BUFFER=$selected
+        CURSOR=$#BUFFER
+
+        [[ $key == 'enter' ]] && zle accept-line
+    fi
+
+    zle redisplay
+    zle reset-prompt
+}
+
+zle -N custom-completion-widget

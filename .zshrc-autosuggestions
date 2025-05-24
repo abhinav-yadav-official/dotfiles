@@ -1,0 +1,17 @@
+# Enable asynchronous fetching (better performance)
+ZSH_AUTOSUGGEST_USE_ASYNC=1
+
+# Set the suggestion strategy (default is history)
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+# Set the highlight color (default is 8)
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=8"
+
+# Disable automatic widget re-binding
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+
+# Ignore history matches with leading space
+ZSH_AUTOSUGGEST_HISTORY_IGNORE=" *"
+
+# Set the minimum length before showing suggestions
+ZSH_AUTOSUGGEST_BUFFER_MIN_SIZE=1

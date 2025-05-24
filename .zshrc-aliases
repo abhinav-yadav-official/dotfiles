@@ -1,7 +1,15 @@
 alias zshup="source ~/.zshrc"
 alias vizsh="vim ~/.zshrc; zshup"
-alias ports="sudo lsof -i -P | grep LISTEN"
-alias clean="hg clean; hg up --clean"
-alias cst="cdiff --stat"
-alias vdl='yt-dlp --cookies ~/Downloads/cookies.txt --downloader aria2c'
 alias code="windsurf"
+alias fkill="pkill -9 -u abhinav -Iif"
+alias ls="ls --color=auto"
+alias rm="rm -i"
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias diff='diff --color=auto'
+alias tree='tree -C'
+alias less='less -R'
+alias mysql="mysql -u root"
+alias ncdu-root="sudo ncdu / --exclude /System --exclude /Volumes --exclude /dev --exclude /private"
+alias find-root="sudo find / -type d \( -path /System -o -path /Volumes -o -path /dev -o -path /private \) -prune -false -o"

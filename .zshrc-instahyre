@@ -40,6 +40,8 @@ alias plint="pylint --rcfile=$DEVEL_PATH/.pylintrc"
 
 alias mdump='mysqldump -u root --all-databases | pv -s$(mysql -u root -Nse "SELECT ROUND(SUM(data_length) * 0.9, 0) FROM information_schema.TABLES")'
 
+alias clean="hg clean; hg up --clean"
+
 apply-dump() {
     mysql -u root -e 'DROP DATABASE IF EXISTS auction; DROP DATABASE IF EXISTS instamail; CREATE DATABASE auction; CREATE DATABASE instamail;'
     
@@ -80,4 +82,12 @@ apply-dump() {
         # Original behavior for SQL files
         pv "$file" | mysql -u root
     fi
+}
+
+gen-dump() {
+    echo "Generating dump..."
+    (mysqldump -u root --all-databases | pv -s$(mysql -u root -Nse "SELECT ROUND(SUM(data_length) * 0.9, 0) FROM information_schema.TABLES") > $1.sql) &&
+    echo "Compressing dump..." &&
+    (tar -czf - $1.sql | pv > $1.tar.gz) &&
+    echo "Done"
 }

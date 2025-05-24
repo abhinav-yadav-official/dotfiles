@@ -60,6 +60,13 @@ custom-completion-widget() {
             cut -f2- |
             fzf --exact --tac --no-sort --query="$query" --expect=enter,right
         )}")
+    else
+        result=("${(@f)$(
+            fc -l 1 |
+            sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+//' |
+            cut -f2- |
+            fzf --exact --tac --no-sort --expect=enter,right
+        )}")
     fi
 
     if [[ ${#result} -ge 2 ]]; then
